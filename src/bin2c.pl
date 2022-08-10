@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/run/current-system/sw/bin/perl
 # (C) Copyright 2009-2016 Hilko Bengen.
 #
 # This program is free software; you can redistribute it and/or modify
