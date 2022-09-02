@@ -24,14 +24,14 @@ let nix_detect () =
 let () =
   let ph = {
     ph_detect = nix_detect;
-    ph_init = failwith "unimplemented nix ph_init";
+    ph_init = (fun settings -> failwith "unimplemented nix ph_init");
     ph_fini = (fun () -> ());
-    ph_package_of_string = failwith "unimplemented nix ph_package_of_string";
-    ph_package_to_string = failwith "unimplemented nix ph_package_to_string";
-    ph_package_name = failwith "unimplemented nix ph_package_name";
-    ph_get_package_database_mtime = failwith "unimplemented nix ph_get_package_database_mtime";
-    ph_get_requires = failwith "unimplemented nix ph_get_requires";
-    ph_get_files = failwith "unimplemented nix ph_get_files";
-    ph_download_package = failwith "unimplemented nix ph_download_package";
+    ph_package_of_string = (fun pkgname -> failwith "unimplemented nix ph_package_of_string");
+    ph_package_to_string = (fun pkg -> failwith "unimplemented nix ph_package_to_string");
+    ph_package_name = ( fun pkg -> failwith "unimplemented nix ph_package_name");
+    ph_get_package_database_mtime = ( fun () -> failwith "unimplemented nix ph_get_package_database_mtime");
+    ph_get_requires = PHGetAllRequires ( fun pkgs -> failwith "unimplemented nix ph_get_requires");
+    ph_get_files = PHGetAllFiles ( fun pkgs -> failwith "unimplemented nix ph_get_files");
+    ph_download_package = PHDownloadAllPackages ( fun pkgs dir -> failwith "unimplemented nix ph_download_package");
   } in
   register_package_handler "any_system" "nix" ph
