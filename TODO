@@ -1,3 +1,8 @@
+check that tests run in an "empty" env, make sure your propagated inputs are correct
+port guestfs pacakge names
+att detection -> string interface
+
+
 Store %post scripts
 -------------------
 

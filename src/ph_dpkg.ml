@@ -24,13 +24,15 @@ open Utils
 open Package_handler
 
 let dpkg_detect () =
-  Config.dpkg <> "no" &&
-    Config.dpkg_deb <> "no" &&
-    Config.dpkg_query <> "no" &&
-    Config.dpkg_divert <> "no" &&
-    Config.apt_get <> "no" &&
-    (List.mem (Os_release.get_id ()) [ "debian"; "ubuntu" ] ||
-     try (stat "/etc/debian_version").st_kind = S_REG with Unix_error _ -> false)
+  let b =
+    Config.dpkg <> "no" &&
+      Config.dpkg_deb <> "no" &&
+      Config.dpkg_query <> "no" &&
+      Config.dpkg_divert <> "no" &&
+      Config.apt_get <> "no" &&
+      (List.mem (Os_release.get_id ()) [ "debian"; "ubuntu" ] ||
+       try (stat "/etc/debian_version").st_kind = S_REG with Unix_error _ -> false)
+  in (b, if b then None else Some "Could not find one of [dpkg_deb, dpkg_query, dpkg_divert, apt_get] at compile time, or did not detect one of [debian, ubuntu].")
 
 let dpkg_primary_arch = ref ""
 let settings = ref no_settings

@@ -58,7 +58,7 @@ let file_source file =
   with Unix_error _ -> file.ft_path
 
 type package_handler = {
-  ph_detect : unit -> bool;
+  ph_detect : unit -> bool * string option;
   ph_init : settings -> unit;
   ph_fini : unit -> unit;
   ph_package_of_string : string -> package option;
@@ -103,9 +103,13 @@ let register_package_handler system packager ph =
 let list_package_handlers () =
   List.iter (
     fun (system, packager, ph) ->
-      let detected = ph.ph_detect () in
-      printf "%s/%s\t%s\n"
-        system packager (if detected then "detected" else "not-detected")
+      let detected, message = ph.ph_detect () in
+      printf "%s/%s\t%s\t%s\n"
+        system packager (if detected then "detected" else "not-detected") (
+          match message with
+            Some m -> m
+          | None -> ""
+          )
   ) !handlers
 
 let handler = ref None
@@ -113,7 +117,7 @@ let handler = ref None
 let check_system settings =
   try
     let (_, _, ph) as h =
-      List.find (fun (_, _, ph) -> ph.ph_detect ()) !handlers in
+      List.find (fun (_, _, ph) -> (let b, _ = ph.ph_detect () in b) ) !handlers in
     handler := Some h;
     ph.ph_init settings
   with Not_found ->

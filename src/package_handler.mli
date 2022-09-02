@@ -90,7 +90,7 @@ val file_source : file -> string
 (** Package handlers are modules that implement this structure and
     call {!register_package_handler}. *)
 type package_handler = {
-  ph_detect : unit -> bool;
+  ph_detect : unit -> bool * string option;
   (** The package handler should return true if the system uses this
       package manager. *)
 

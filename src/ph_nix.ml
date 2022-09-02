@@ -17,9 +17,14 @@
  *)
 
 open Package_handler
+open Printf
+
+let have_exe exe_name =
+  Sys.command (sprintf "command -v %s >/dev/null 2>&1" exe_name) == 0
 
 let nix_detect () =
-  Config.nix_instantiate <> "no" && Config.nix_store <> "no"
+  let b = have_exe "nix-instantiate" && have_exe "nix-store"
+  in (b, if b then None else Some "command -v could not find one of [nix-instantiate, nix-store].")
 
 let () =
   let ph = {

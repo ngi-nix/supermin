@@ -24,11 +24,13 @@ open Utils
 open Package_handler
 
 let pacman_detect () =
-  Config.pacman <> "no" && Config.fakeroot <> "no" &&
-    (Os_release.get_id () = "arch" ||
-     Os_release.get_id () = "artix" ||
-     ((stat "/etc/arch-release").st_kind = S_REG &&
-      Config.pacman_g2 = "no")) (* not Frugalware with pacman-g2 *)
+  let b =
+    Config.pacman <> "no" && Config.fakeroot <> "no" &&
+      (Os_release.get_id () = "arch" ||
+       Os_release.get_id () = "artix" ||
+       ((stat "/etc/arch-release").st_kind = S_REG &&
+        Config.pacman_g2 = "no")) (* not Frugalware with pacman-g2 *)
+  in (b, if b then None else Some "Could not find one of [pacman, fakeroot] at compile time, or could not detect one of [arch, artix].")
 
 let settings = ref no_settings
 

@@ -30,41 +30,52 @@ let stringset_of_list pkgs =
   List.fold_left (fun set elem -> StringSet.add elem set) StringSet.empty pkgs
 
 let fedora_detect () =
-  Config.rpm <> "no" && Config.rpm2cpio <> "no" && rpm_is_available () &&
-    (Config.yumdownloader <> "no" || Config.dnf <> "no") &&
-    (List.mem (Os_release.get_id ()) [ "fedora"; "rhel"; "centos"; "openEuler"; "anolis" ] ||
-     try
-       (stat "/etc/redhat-release").st_kind = S_REG ||
-       (stat "/etc/fedora-release").st_kind = S_REG ||
-       (stat "/etc/openEuler-release").st_kind = S_REG ||
-       (stat "/etc/anolis-release").st_kind = S_REG
-     with Unix_error _ -> false)
+  let b = 
+    Config.rpm <> "no" && Config.rpm2cpio <> "no" && rpm_is_available () &&
+      (Config.yumdownloader <> "no" || Config.dnf <> "no") &&
+      (List.mem (Os_release.get_id ()) [ "fedora"; "rhel"; "centos"; "openEuler"; "anolis" ] ||
+       try
+         (stat "/etc/redhat-release").st_kind = S_REG ||
+         (stat "/etc/fedora-release").st_kind = S_REG ||
+         (stat "/etc/openEuler-release").st_kind = S_REG ||
+         (stat "/etc/anolis-release").st_kind = S_REG
+       with Unix_error _ -> false)
+  in (b, if b then None else Some "Could not detect one of [rpm, rpm2cpio, yumdownloader] at compile time, or could not detect one of [fedora, rhel, centos, openEuler, anolis].")
 
 let opensuse_detect () =
-  Config.rpm <> "no" && Config.rpm2cpio <> "no" && rpm_is_available () &&
-    Config.zypper <> "no" &&
-    (List.mem (Os_release.get_id ()) [ "sled"; "sles" ] ||
-     string_prefix "opensuse" (Os_release.get_id ()) ||
-     try (stat "/etc/SuSE-release").st_kind = S_REG with Unix_error _ -> false)
+  let b =
+    Config.rpm <> "no" && Config.rpm2cpio <> "no" && rpm_is_available () &&
+      Config.zypper <> "no" &&
+      (List.mem (Os_release.get_id ()) [ "sled"; "sles" ] ||
+       string_prefix "opensuse" (Os_release.get_id ()) ||
+       try (stat "/etc/SuSE-release").st_kind = S_REG with Unix_error _ -> false)
+  in (b, if b then None else Some "Could not detect one of [rpm, rpm2cpio, zypper] at compile time, or could not detect one of [sled, sles].")
 
 let mageia_detect () =
-  Config.rpm <> "no" && Config.rpm2cpio <> "no" && rpm_is_available () &&
-    ((Config.urpmi <> "no" && Config.fakeroot <> "no") || Config.dnf <> "no") &&
-    (Os_release.get_id () = "mageia" ||
-     try (stat "/etc/mageia-release").st_kind = S_REG with Unix_error _ -> false)
+  let b =
+    Config.rpm <> "no" && Config.rpm2cpio <> "no" && rpm_is_available () &&
+      ((Config.urpmi <> "no" && Config.fakeroot <> "no") || Config.dnf <> "no") &&
+      (Os_release.get_id () = "mageia" ||
+       try (stat "/etc/mageia-release").st_kind = S_REG with Unix_error _ -> false)
+  in (b, if b then None else Some "Could not detect one of [rpm, rpm2cpio, urpmi, fakeroot] at compile time, or could not detect mageia.")
+
 
 let openmandriva_detect () =
-  Config.rpm <> "no" && Config.rpm2cpio <> "no" && rpm_is_available () &&
-    ((Config.urpmi <> "no" && Config.fakeroot <> "no") || Config.dnf <> "no") &&
-    (Os_release.get_id () = "openmandriva" ||
-     try (stat "/etc/openmandriva-release").st_kind = S_REG with Unix_error _ -> false)
+  let b =
+    Config.rpm <> "no" && Config.rpm2cpio <> "no" && rpm_is_available () &&
+      ((Config.urpmi <> "no" && Config.fakeroot <> "no") || Config.dnf <> "no") &&
+      (Os_release.get_id () = "openmandriva" ||
+       try (stat "/etc/openmandriva-release").st_kind = S_REG with Unix_error _ -> false)
+  in (b, if b then None else Some "Could not detect one of [rpm, rpm2cpio, urpmi, fakeroot] at compile time, or could not detect openmandriva.")
 
 let ibm_powerkvm_detect () =
-  Config.rpm <> "no" && Config.rpm2cpio <> "no" && rpm_is_available () &&
-    Config.yumdownloader <> "no" &&
-    try
-      (stat "/etc/ibm_powerkvm-release").st_kind = S_REG
-    with Unix_error _ -> false
+  let b =
+    Config.rpm <> "no" && Config.rpm2cpio <> "no" && rpm_is_available () &&
+      Config.yumdownloader <> "no" &&
+      try
+        (stat "/etc/ibm_powerkvm-release").st_kind = S_REG
+      with Unix_error _ -> false
+  in (b, if b then None else Some "Could not detect one of [rpm, rpm2cpio, yumdownloader] at compile time, or could not detect IBM PowerKVM.")
 
 let settings = ref no_settings
 let rpm_major, rpm_minor, rpm_arch = ref 0, ref 0, ref ""

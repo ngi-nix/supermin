@@ -7,6 +7,7 @@
 #    supermin.url = "github:libguestfs/supermin";
 #    supermin.url = "path:" + (builtins.unsafeDiscardStringContext (builtins.toString ./.));
     supermin.url = "path:./.";
+#    supermin.url = "path:/bakery7/oven7/ephemeral/work/SoN-2022/supermin2";
     supermin.flake = false;
   };
 
