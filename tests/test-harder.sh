@@ -1,4 +1,4 @@
-#!/bin/bash -
+#!/nix/store/1b9p07z77phvv2hf6gm9f28syp39f1ag-bash-5.1-p16/bin/bash -
 # supermin
 # (C) Copyright 2009-2014 Red Hat Inc.
 #
@@ -45,6 +45,8 @@ elif [ -f /etc/SuSE-release ]; then
     distro=suse
 elif [ -f /etc/ibm_powerkvm-release ]; then
     distro=ibm-powerkvm
+elif command -v nix-store && command -v nix-instantiate; then
+    distro=nix
 else
     exit 77
 fi
@@ -81,6 +83,8 @@ case $distro in
     openmandriva)
         pkgs="augeas hivex rpm"
         ;;
+    nix)
+        pkgs="augeas hivex";; #TODO no services or anything else ...?
     *)
 	echo "Unhandled distro '$distro'"
 	exit 77
@@ -265,6 +269,9 @@ case $distro in
 	    exit 1
 	fi
 	;;
+    nix)
+        echo "TODO wrap bash and set up env???"
+        ;;
 esac
 
 # Need to chmod $d2 since rm -r can't remove unwritable directories.
