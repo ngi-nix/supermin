@@ -11,8 +11,9 @@ in {
    src = final.inputs.supermin;
 
 #   configureFlags = [ "--disable-network-tests" ]; #TODO
-   nativeBuildInputs = with prev.ocamlPackages; [ ocaml findlib ] ++ (with prev; [ makeWrapper autoreconfHook autoconf automake pkg-config cpio ]);
-   buildInputs = [ prev.e2fsprogs prev.perl ]; 
+   nativeBuildInputs = with prev.ocamlPackages; [ ocaml findlib ] ++ (with prev; [ makeWrapper autoreconfHook autoconf automake pkg-config ]);
+   buildInputs = [ prev.e2fsprogs prev.perl ];
+   propagatedBuildInputs = with prev; [ nix cpio ];
    preBuild = ''
      patchShebangs ./src/bin2c.pl #needed during build, theres other stuff needed during tests too
      patchShebangs ./tests #TODO whats not covered by these patch?

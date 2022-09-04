@@ -6,8 +6,6 @@ with pkgs;
   # a hello world example from the top of supermin's website
   welcome = runCommand "supermin-welcome-check" {
     nativeBuildInputs = [
-      # TODO: should these be in supermin's propagatedBuildInputs?
-      nix cpio
       self.packages.${buildPlatform.system}.supermin
       gnutar
       qemu_test
