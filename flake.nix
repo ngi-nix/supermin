@@ -48,7 +48,7 @@
     # Tests run by 'nix flake check' and by Hydra.
     checks = genSystems (system: 
       import ./nix/checks.nix {
-        inherit self;
+        inherit self nixpkgs;
         pkgs = pkgsFor.${system};
       }
     );

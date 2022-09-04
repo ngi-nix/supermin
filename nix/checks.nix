@@ -1,4 +1,4 @@
-{ self, pkgs }:
+{ self, nixpkgs, pkgs }:
 
 with pkgs;
 
@@ -9,8 +9,19 @@ with pkgs;
       self.packages.${buildPlatform.system}.supermin
       gnutar
       qemu_test
+      # for the appliance
+      bash util-linux
     ];
   } ''
+    TMPSTORE=$PWD/$(mktemp -d nix-store-XXXXX)
+    export HOME=$PWD/$(mktemp -d home-XXXXX)
+    mkdir -p $TMPSTORE/nix/store
+    mkdir -p ~/.config/nix
+    cat > ~/.config/nix/nix.conf <<EOF
+    store = $TMPSTORE/nix/store
+    EOF
+    export NIX_PATH=nixpkgs=${nixpkgs}
+
     supermin --prepare bash util-linux -o supermin.d -v
 
     cat > init <<EOF
