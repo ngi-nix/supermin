@@ -88,6 +88,15 @@ let nix_find_files pac =
 let nix_get_files pkgs =
   List.concat (List.map (fun x -> nix_find_files (pac_of_pkg x)) (PackageSet.elements pkgs))
 
+let nix_download_all_packages pkgs dir =
+  List.iter (fun pkg ->
+      let cmd =
+        sprintf "nix-build --no-out-link --option store %s %s"
+          (dir // "nix" // "store") (pac_of_pkg pkg).path
+      in
+      run_command cmd
+    ) (PackageSet.elements pkgs)
+
 let () =
   let ph = {
     ph_detect = nix_detect;
@@ -100,6 +109,6 @@ let () =
     ph_get_package_database_mtime = ( fun () -> failwith "unimplemented nix ph_get_package_database_mtime");
     ph_get_requires = PHGetAllRequires (fun pkgs -> pkgs);
     ph_get_files = PHGetAllFiles nix_get_files;
-    ph_download_package = PHDownloadAllPackages ( fun pkgs dir -> failwith "unimplemented nix ph_download_package");
+    ph_download_package = PHDownloadAllPackages nix_download_all_packages;
   } in
   register_package_handler "any_system" "nix" ph
