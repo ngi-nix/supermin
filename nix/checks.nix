@@ -13,6 +13,8 @@ with pkgs;
       qemu_test
     ];
   } ''
+    supermin --prepare bash util-linux -o supermin.d -v
+
     cat > init <<EOF
     #!/bin/sh
     mount -t proc /proc /proc
@@ -26,7 +28,7 @@ with pkgs;
     mkdir supermin.d
     tar zcf supermin.d/init.tar.gz ./init
 
-    supermin --build supermin.d -f ext2 -o appliance.d
+    supermin --build supermin.d -f ext2 -o appliance.d -v
 
     qemu-kvm -nodefaults -nographic \
       -kernel appliance.d/kernel \
