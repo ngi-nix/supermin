@@ -3,7 +3,7 @@ final: prev:
 (let
   packages = final.inputs.self.packages.${prev.system};
 in {
-  devShell.${prev.system} = final.supermin;
+  devShell = final.supermin;
 
   supermin = prev.stdenv.mkDerivation {
    name = "supermin";
