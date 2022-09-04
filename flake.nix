@@ -47,12 +47,10 @@
 
     # Tests run by 'nix flake check' and by Hydra.
     checks = genSystems (system: 
-      # Don't want our packages showing up in checks, so we put it in the `first:` argument
-      # TODO doing this is also kind of a mess because it makes using final confusing: 
-      #  if you want something from packages you have to use prev, final is only for the checks attrset
-      resolveOverlays
-        ( resolveOverlays pkgsFor.${system} [ self.overlays.default ] )
-        [ (import ./nix/checks.nix) ]
+      import ./nix/checks.nix {
+        inherit self;
+        pkgs = pkgsFor.${system};
+      }
     );
 
     # We use the default devShell behaviour
