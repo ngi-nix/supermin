@@ -1,4 +1,4 @@
-#!/bin/bash -
+#! /usr/bin/env bash
 
 set -e
 
@@ -24,13 +24,15 @@ echo
 # Create a supermin appliance in basic-supermin.d/ subdirectory.
 rm -rf basic-supermin.d
 mkdir basic-supermin.d
-../src/supermin --prepare $pkgs -o basic-supermin.d
+supermin -v --use-installed --prepare $pkgs -o basic-supermin.d
 
 # Create an init script.
 rm -f init
+#TODO the expansions here are a bit of a hack. need to make sure you are using the same nixpkgs version. This should probably be done totally different though.
 cat > init <<EOF
+#!$(nix-build "<nixpkgs>" -A bash --no-out-link)/bin/bash 
 #!/bin/bash
-exec bash
+exec $(nix-build "<nixpkgs>" -A bash --no-out-link)/bin/bash
 EOF
 chmod 0755 init
 
@@ -61,7 +63,7 @@ echo
 # Build the full appliance.
 rm -rf basic-full-appliance
 mkdir basic-full-appliance
-../src/supermin --build -f ext2 \
+supermin -v --use-installed --build -f ext2 \
     --copy-kernel --host-cpu "$(uname -m)" \
     -o basic-full-appliance \
     basic-supermin.d

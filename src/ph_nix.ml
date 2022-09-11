@@ -41,7 +41,9 @@ type pac_t = {
 let pac_of_pkg, pkg_of_pac = get_memo_functions ()
 
 let nix_instantiate name = 
-  let cmd = sprintf "nix-instantiate '<nixpkgs>' -A %s" (quote name)
+  (*TODO I mean, this is basically nix-build?*)
+  let cmd = sprintf "nix-instantiate -E 'let pkgs = import <nixpkgs> {}; in pkgs.mkShell { packages = with pkgs; [ '%s' ]; }'" (quote name)
+(*  let cmd = sprintf "nix-instantiate -E %s" (quote name) *)
   in
     if !settings.debug >= 2 then printf "%s" cmd; (*TODO shouldnt this be <=?*)
     let drv =List.hd( run_command_get_lines cmd)
@@ -106,7 +108,7 @@ let () =
     ph_package_of_string = nix_package_of_string;
     ph_package_to_string = (fun pkg -> (pac_of_pkg pkg).name);
     ph_package_name = (fun pkg -> (pac_of_pkg pkg).name);
-    ph_get_package_database_mtime = ( fun () -> failwith "unimplemented nix ph_get_package_database_mtime");
+    ph_get_package_database_mtime = (fun _ -> 0.0);
     ph_get_requires = PHGetAllRequires (fun pkgs -> pkgs);
     ph_get_files = PHGetAllFiles nix_get_files;
     ph_download_package = PHDownloadAllPackages nix_download_all_packages;

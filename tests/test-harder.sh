@@ -32,6 +32,7 @@ if [ -f /etc/os-release ]; then
         opensuse*|sled|sles) distro=suse ;;
         ubuntu) distro=debian ;;
         openmandriva) distro=openmandriva ;;
+        nixos) distro=nix;;
     esac
 elif [ -f /etc/arch-release ]; then
     distro=arch
@@ -59,32 +60,32 @@ d2=$tmpdir/d2
 case $distro in
     arch)
 	# Choose at least one from AUR.
-	pkgs="hivex"
+	pkgs=("hivex")
 	;;
     debian)
-	pkgs="augeas-tools libaugeas0 libhivex0 libhivex-bin"
+	pkgs=("augeas-tools" "libaugeas0" "libhivex0" "libhivex-bin")
 	;;
     mageia)
 	# Choose rpm because it has an epoch > 0 and is commonly
 	# installed.  (See commit fb40baade8e3441b73ce6fd10a32fbbfe49cc4da)
-	pkgs="augeas hivex rpm"
+	pkgs=("augeas" "hivex" "rpm")
 	;;
     redhat)
         # Choose tar because it has an epoch > 0 and is commonly
         # installed.  (See commit fb40baade8e3441b73ce6fd10a32fbbfe49cc4da)
-	pkgs="augeas hivex tar"
+	pkgs=("augeas" "hivex" "tar")
 	;;
     suse)
-	pkgs="augeas hivex tar"
+	pkgs=("augeas" "hivex" "tar")
 	;;
     ibm-powerkvm)
-	pkgs="augeas hivex tar"
+	pkgs=("augeas" "hivex" "tar")
 	;;
     openmandriva)
-        pkgs="augeas hivex rpm"
+        pkgs=("augeas" "hivex" "rpm")
         ;;
     nix)
-        pkgs="augeas hivex";; #TODO no services or anything else ...?
+        pkgs=("let pkgs = import <nixpkgs> {}; in pkgs.mkShell { packages = with pkgs; [ augeas hivex ]; }'");; #TODO no services or anything else ...?
     *)
 	echo "Unhandled distro '$distro'"
 	exit 77
@@ -93,10 +94,10 @@ esac
 
 test "$USE_NETWORK" = 1 || USE_INSTALLED=--use-installed
 
-../src/supermin -v --prepare $USE_INSTALLED $pkgs -o $d1
+supermin -v --prepare $USE_INSTALLED "${pkgs[@]}" -o $d1
 
 # Build a chroot.
-../src/supermin -v --build -f chroot $d1 -o $d2
+supermin -v --build -f chroot $d1 -o $d2
 
 # Check the result in a distro-specific manner.
 case $distro in
@@ -271,6 +272,7 @@ case $distro in
 	;;
     nix)
         echo "TODO wrap bash and set up env???"
+        exit 1
         ;;
 esac
 
