@@ -26,7 +26,7 @@ open Package_handler
 let build_chroot debug files outputdir packagelist_file =
   let do_copy src dest =
     if debug >= 2 then printf "supermin: chroot: copy %s\n%!" dest;
-    let cmd = sprintf "cp -p %s %s" (quote src) (quote dest) in
+    let cmd = sprintf "cp -p %s %s ; chmod +w %s " (quote src) (quote dest) (quote dest) in
     ignore (Sys.command cmd)
   in
 

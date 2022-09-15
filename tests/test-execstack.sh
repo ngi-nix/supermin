@@ -1,4 +1,4 @@
-#!/bin/bash -
+#!/nix/store/1b9p07z77phvv2hf6gm9f28syp39f1ag-bash-5.1-p16/bin/bash -
 # supermin
 # (C) Copyright 2014 Red Hat Inc.
 #
@@ -25,12 +25,12 @@ fi
 
 if scanelf --help >/dev/null 2>&1; then
     echo "using scanelf"
-    scanelf -e ../src/supermin
-    test `scanelf -qe ../src/supermin | wc -l` -eq 0
+    scanelf -e ../src/.supermin-wrapped
+    test `scanelf -qe ../src/.supermin-wrapped | wc -l` -eq 0
 elif readelf --help >/dev/null 2>&1; then
     echo "using readelf"
-    readelf -lW ../src/supermin | grep GNU_STACK
-    ! readelf -lW ../src/supermin | grep GNU_STACK | grep 'E ' >/dev/null 2>&1
+    readelf -lW ../src/.supermin-wrapped | grep GNU_STACK
+    ! readelf -lW ../src/.supermin-wrapped | grep GNU_STACK | grep 'E ' >/dev/null 2>&1
 else
     echo "$0: test skipped because none of the following tools is installed: scanelf, readelf"
     exit 77

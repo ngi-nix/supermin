@@ -85,7 +85,7 @@ case $distro in
         pkgs=("augeas" "hivex" "rpm")
         ;;
     nix)
-        pkgs=("let pkgs = import <nixpkgs> {}; in pkgs.mkShell { packages = with pkgs; [ augeas hivex ]; }'");; #TODO no services or anything else ...?
+        pkgs=("augeas" "hivex" "gnutar");; #TODO no services or anything else ...?
     *)
 	echo "Unhandled distro '$distro'"
 	exit 77
@@ -94,10 +94,10 @@ esac
 
 test "$USE_NETWORK" = 1 || USE_INSTALLED=--use-installed
 
-supermin -v --prepare $USE_INSTALLED "${pkgs[@]}" -o $d1
+../src/supermin -v -v -v --prepare $USE_INSTALLED "${pkgs[@]}" -o $d1
 
 # Build a chroot.
-supermin -v --build -f chroot $d1 -o $d2
+../src/supermin -v -v -v --build -f chroot $d1 -o $d2
 
 # Check the result in a distro-specific manner.
 case $distro in
@@ -271,9 +271,39 @@ case $distro in
 	fi
 	;;
     nix)
-        echo "TODO wrap bash and set up env???"
-        exit 1
-        ;;
+        _augeas=$d2/$(nix-build "<nixpkgs>" -A augeas --no-out-link)
+        _hivex=$d2/$(nix-build "<nixpkgs>" -A hivex --no-out-link)
+        augtool=$_augeas/bin/augtool
+        libaugeas=$_augeas/lib/libaugeas.so.0
+        hivexget=$_hivex/bin/hivexget
+        libhivex=$_hivex/lib/libhivex.so.0
+        tar=$d2/$(nix-build "<nixpkgs>" -A gnutar --no-out-link)/bin/tar
+	if [ ! -x $augtool ]; then
+	    echo "$0: $distro: augtool binary not installed in chroot"
+	    ls -lR $d2
+	    exit 1
+	fi
+	if [ "$(find $libaugeas -name libaugeas.so.0 | wc -l)" -lt 1 ]; then
+	    echo "$0: $distro: augeas library not installed in chroot"
+	    ls -lR $d2
+	    exit 1
+	fi
+	if [ ! -x $hivexget ]; then
+	    echo "$0: $distro: hivexget binary not installed in chroot"
+	    ls -lR $d2
+	    exit 1
+	fi
+	if [ "$(find $libhivex -name libhivex.so.0 | wc -l)" -lt 1 ]; then
+	    echo "$0: $distro: hivex library not installed in chroot"
+	    ls -lR $d2
+	    exit 1
+	fi
+	if [ ! -x $tar ]; then
+	    echo "$0: $distro: tar binary not installed in chroot"
+	    ls -lR $d2
+	    exit 1
+	fi
+	;;
 esac
 
 # Need to chmod $d2 since rm -r can't remove unwritable directories.
