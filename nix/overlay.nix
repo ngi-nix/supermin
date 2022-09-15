@@ -8,7 +8,11 @@ in {
   supermin = prev.stdenv.mkDerivation {
    name = "supermin";
 
-   src = final.inputs.supermin;
+   src = builtins.filterSource (path: type:
+     # changed nix files don't affect the package build
+     path != "nix" &&
+     builtins.match ".+\\.nix$" path == null
+   ) final.inputs.self;
 
 #   configureFlags = [ "--disable-network-tests" ]; #TODO
    nativeBuildInputs = with prev.ocamlPackages; [ ocaml findlib ] ++ (with prev; [ makeWrapper autoreconfHook autoconf automake pkg-config ]);
